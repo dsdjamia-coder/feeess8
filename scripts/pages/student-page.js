@@ -2197,12 +2197,12 @@ window.AppSession?.guardStudentPage?.();
 
             // Draw CLASS : and Number on the same line inside the box
             ctx.textBaseline = 'middle';
-            const textStartX = (designWidth - totalClassTextWidth) / 2;
+            const classTextStartX = (designWidth - totalClassTextWidth) / 2;
             ctx.textAlign = 'left';
             ctx.fillStyle = '#d97706';
-            ctx.fillText(classBoxPrefix, textStartX, classBoxY + (classBoxH / 2));
+            ctx.fillText(classBoxPrefix, classTextStartX, classBoxY + (classBoxH / 2));
             ctx.fillStyle = '#172554';
-            ctx.fillText(cleanClassNo, textStartX + prefixWidth, classBoxY + (classBoxH / 2));
+            ctx.fillText(cleanClassNo, classTextStartX + prefixWidth, classBoxY + (classBoxH / 2));
             ctx.restore();
 
             // 6. Main Subject Table
@@ -2445,16 +2445,16 @@ window.AppSession?.guardStudentPage?.();
                 ctx.restore();
             }
 
-            const textStartX = footerStartX + (instLogoImg ? (logoSize + logoGap) : 0);
+            const footerTextStartX = footerStartX + (instLogoImg ? (logoSize + logoGap) : 0);
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ffffff';
             ctx.font = '900 18px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillText(instName.toUpperCase(), textStartX, regAndPlace ? (footerCenterY - 4) : (footerCenterY + 6));
+            ctx.fillText(instName.toUpperCase(), footerTextStartX, regAndPlace ? (footerCenterY - 4) : (footerCenterY + 6));
 
             if (regAndPlace) {
                 ctx.fillStyle = '#fde68a';
                 ctx.font = '700 13px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(regAndPlace, textStartX, footerCenterY + 16);
+                ctx.fillText(regAndPlace, footerTextStartX, footerCenterY + 16);
             }
             ctx.restore();
 
