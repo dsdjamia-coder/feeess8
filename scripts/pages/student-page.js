@@ -2145,55 +2145,51 @@ window.AppSession?.guardStudentPage?.();
                 // Leaf sprig on right side of photo card
                 drawBotanicalLeaves(ctx, photoCardX + photoCardSize + 5, photoCardY + 130, photoCardX + photoCardSize + 35, photoCardY + 170, photoCardX + photoCardSize + 15, photoCardY + 210, '#15803d');
 
-                // Beside Photo: Title, Class, Name & Father
-                const headerTextLeft = photoCardX + photoCardSize + 40;
+                // Beside Photo: Title, Student Name & Father
+                const headerTextLeft = photoCardX + photoCardSize + 35;
 
                 ctx.save();
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#172554';
-                ctx.font = '900 60px "Plus Jakarta Sans", "Georgia", sans-serif';
-                ctx.fillText(firstWord, headerTextLeft, 95);
+                ctx.font = '900 52px "Plus Jakarta Sans", "Georgia", sans-serif';
+                ctx.fillText(firstWord, headerTextLeft, 90);
 
                 ctx.fillStyle = '#d97706';
-                ctx.font = '900 66px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
-                ctx.fillText(secondWord, headerTextLeft + 6, 155);
+                ctx.font = '900 56px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
+                ctx.fillText(secondWord, headerTextLeft + 4, 145);
                 ctx.restore();
 
-                // Prominent Class Badge: Big number highlighted with "CLASS" underneath
+                // Opposite side of Photo (Right side of canvas): Large Class, No border or box
                 const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
-                const classBadgeX = headerTextLeft;
-                const classBadgeY = 175;
-                const classBadgeW = 105;
-                const classBadgeH = 68;
-                const badgeGrad = ctx.createLinearGradient(classBadgeX, classBadgeY, classBadgeX, classBadgeY + classBadgeH);
-                badgeGrad.addColorStop(0, '#172554');
-                badgeGrad.addColorStop(1, '#0f172a');
-                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 16, badgeGrad, '#f59e0b', 2);
+                const classRightX = designWidth - 65;
 
+                ctx.save();
+                ctx.textAlign = 'right';
                 // Big Class Number
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '900 36px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(cleanClassNo, classBadgeX + (classBadgeW / 2), classBadgeY + 38);
+                ctx.fillStyle = '#172554';
+                ctx.font = '900 64px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(cleanClassNo, classRightX, 112);
 
-                // "CLASS" in gold underneath
-                ctx.fillStyle = '#fbbf24';
-                ctx.font = '900 12px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText('CLASS', classBadgeX + (classBadgeW / 2), classBadgeY + 58);
+                // "CLASS" text in warm gold underneath
+                ctx.fillStyle = '#d97706';
+                ctx.font = '900 15px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText('CLASS', classRightX, 138);
+                ctx.restore();
 
-                // Student Name beside the Class Badge
-                const nameLeft = headerTextLeft + classBadgeW + 20;
+                // Student Name under the Title
+                ctx.save();
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), nameLeft, classBadgeY + 34);
+                ctx.fillText(studentName.toUpperCase(), headerTextLeft, 190);
 
                 // Father Name (S/o or D/o)
                 if (fatherName) {
                     ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
                     ctx.fillStyle = '#475569';
-                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, nameLeft, classBadgeY + 62);
+                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, headerTextLeft, 218);
                 }
+                ctx.restore();
             } else {
                 // No Photo: Centered Elegant Full-Width Header (No blank boxes or avatars)
                 ctx.save();
@@ -2214,33 +2210,24 @@ window.AppSession?.guardStudentPage?.();
                 ctx.fillText(secondWord, titleStartX + w1 + 16, 72);
                 ctx.restore();
 
-                // Prominent Centered Class Badge: Big number with CLASS underneath
+                // Prominent Centered Class: Big number with CLASS underneath (No border, no box)
                 const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
-                const classBadgeW = 120;
-                const classBadgeH = 68;
-                const classBadgeX = (designWidth - classBadgeW) / 2;
-                const classBadgeY = 92;
-                const badgeGrad = ctx.createLinearGradient(classBadgeX, classBadgeY, classBadgeX, classBadgeY + classBadgeH);
-                badgeGrad.addColorStop(0, '#172554');
-                badgeGrad.addColorStop(1, '#0f172a');
-                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 16, badgeGrad, '#f59e0b', 2);
-
-                // Big Class Number
+                ctx.save();
                 ctx.textAlign = 'center';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '900 36px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(cleanClassNo, classBadgeX + (classBadgeW / 2), classBadgeY + 38);
+                ctx.fillStyle = '#172554';
+                ctx.font = '900 48px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(cleanClassNo, designWidth / 2, 130);
 
-                // "CLASS" in gold underneath
-                ctx.fillStyle = '#fbbf24';
-                ctx.font = '900 12px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText('CLASS', classBadgeX + (classBadgeW / 2), classBadgeY + 58);
+                ctx.fillStyle = '#d97706';
+                ctx.font = '900 15px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText('CLASS', designWidth / 2, 154);
+                ctx.restore();
 
                 // Student Name centered
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 192);
+                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 195);
 
                 // Father Name (S/o or D/o) centered
                 if (fatherName) {
@@ -2452,9 +2439,17 @@ window.AppSession?.guardStudentPage?.();
             const instLogoImg = await loadPosterImage(instLogoSrc);
 
             const instName = conf.institutionName || conf.appName || document.getElementById('id-school-name')?.textContent?.trim() || 'NOORUL ISLAM HIGHER SECONDARY MADRASA';
-            const regNo = conf.regNo || conf.regNumber || conf.registrationNumber || document.getElementById('header-regno')?.textContent?.trim() || '';
+            const rawReg = conf.regNo || conf.regNumber || conf.registrationNumber || document.getElementById('header-regno')?.textContent?.trim() || '';
+            const cleanRegNo = String(rawReg).replace(/^(reg(istration)?\s*(no)?[:.]*\s*)+/gi, '').trim();
             const place = conf.place || conf.location || conf.address || document.getElementById('header-place')?.textContent?.trim() || '';
-            const regAndPlace = `${regNo ? `Reg No: ${regNo}` : ''}${regNo && place ? '  •  ' : ''}${place || ''}`.trim();
+            let regAndPlace = '';
+            if (cleanRegNo && place) {
+                regAndPlace = `Reg: ${cleanRegNo}  •  ${place}`;
+            } else if (cleanRegNo) {
+                regAndPlace = `Reg: ${cleanRegNo}`;
+            } else if (place) {
+                regAndPlace = place;
+            }
 
             ctx.save();
             ctx.font = '900 18px "Plus Jakarta Sans", Arial, sans-serif';
@@ -2688,6 +2683,19 @@ window.AppSession?.guardStudentPage?.();
                     const hasStudentPhoto = Boolean(studentProfile?.photo);
                     const cleanClassNo = String(result.classLabel || classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(result.classLabel || classLabel || '');
 
+                    const conf = window.institutionConfig || {};
+                    const rawReg = conf.regNo || conf.regNumber || conf.registrationNumber || document.getElementById('header-regno')?.textContent?.trim() || '';
+                    const cleanRegNo = String(rawReg).replace(/^(reg(istration)?\s*(no)?[:.]*\s*)+/gi, '').trim();
+                    const place = conf.place || conf.location || conf.address || document.getElementById('header-place')?.textContent?.trim() || '';
+                    let regAndPlace = '';
+                    if (cleanRegNo && place) {
+                        regAndPlace = `Reg: ${cleanRegNo}  •  ${place}`;
+                    } else if (cleanRegNo) {
+                        regAndPlace = `Reg: ${cleanRegNo}`;
+                    } else if (place) {
+                        regAndPlace = place;
+                    }
+
                     const examTitle = stringifyResultLabel(getStudentResultExamLabel(result), 'Annual Exam');
                     const isPass = result.totals?.passStatus === 'PASS';
 
@@ -2740,7 +2748,7 @@ window.AppSession?.guardStudentPage?.();
                                 </div>
                             </div>
 
-                            <!-- Header: Student Photo / Initial Badge + Title & Prominent Class Badge -->
+                            <!-- Header: Student Photo / Initial Badge + Title, Student Name + Prominent Class (Opposite side) -->
                             <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 mb-6">
                                 <!-- Photo Frame or Initial Letter Badge -->
                                 <div class="relative shrink-0">
@@ -2759,24 +2767,23 @@ window.AppSession?.guardStudentPage?.();
                                     </div>
                                 </div>
 
-                                <!-- Title, Prominent Class Badge, and Student Details -->
+                                <!-- Title and Student Details (Left/Center) -->
                                 <div class="flex-grow text-center sm:text-left min-w-0">
                                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                         <h3 class="text-2xl sm:text-3xl font-black tracking-tight text-blue-950 font-serif">${escapeHtml(examTitle.split(' ')[0] || 'Annual')}</h3>
                                         <span class="text-2xl sm:text-3xl font-black text-amber-500 font-serif">${escapeHtml(examTitle.split(' ').slice(1).join(' ') || 'Result')}</span>
                                     </div>
 
-                                    <!-- Prominent Class Badge with big number and CLASS underneath -->
-                                    <div class="mt-3 flex items-center justify-center sm:justify-start gap-4">
-                                        <div class="inline-flex flex-col items-center justify-center px-4 py-1.5 bg-gradient-to-b from-blue-900 to-indigo-950 text-white rounded-xl shadow-xs border border-amber-400/50 min-w-[70px]">
-                                            <span class="text-xl sm:text-2xl font-black leading-none text-white">${escapeHtml(cleanClassNo)}</span>
-                                            <span class="text-[9px] font-black tracking-widest text-amber-400 uppercase leading-none mt-1">CLASS</span>
-                                        </div>
-                                        <div class="text-left">
-                                            <div class="text-base sm:text-lg font-black text-slate-900 leading-tight">${escapeHtml(studentProfile?.name || 'Student')}</div>
-                                            ${fatherVal ? `<div class="text-xs font-bold text-slate-500 mt-0.5">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
-                                        </div>
+                                    <div class="mt-2.5 text-center sm:text-left">
+                                        <div class="text-lg sm:text-xl font-black text-slate-900 leading-tight">${escapeHtml(studentProfile?.name || 'Student')}</div>
+                                        ${fatherVal ? `<div class="text-xs sm:text-sm font-bold text-slate-500 mt-0.5">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
                                     </div>
+                                </div>
+
+                                <!-- Opposite side of photo: Big Bold Class (No border, no box) -->
+                                <div class="shrink-0 flex flex-col items-center sm:items-end text-center sm:text-right self-center sm:self-start sm:ml-auto">
+                                    <span class="text-4xl sm:text-5xl font-black text-blue-950 leading-none">${escapeHtml(cleanClassNo)}</span>
+                                    <span class="text-xs font-black tracking-widest text-amber-600 uppercase mt-1">CLASS</span>
                                 </div>
                             </div>
 
@@ -2823,9 +2830,12 @@ window.AppSession?.guardStudentPage?.();
                                 <span class="text-xl sm:text-2xl">${escapeHtml(result.totals?.passStatus || 'PASS')}</span>
                             </div>
 
-                            <!-- Bottom Footer Ribbon Note with Alhamdulillah in English -->
-                            <div class="mt-4 pt-3 border-t border-amber-200/50 flex items-center justify-between text-xs text-slate-500">
-                                <span class="italic font-serif font-bold text-blue-900 text-sm">Alhamdulillah</span>
+                            <!-- Bottom Footer Ribbon Note with Alhamdulillah and Institution Details -->
+                            <div class="mt-4 pt-3 border-t border-amber-200/50 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                                <div class="flex items-center gap-2">
+                                    <span class="italic font-serif font-bold text-blue-900 text-sm">Alhamdulillah</span>
+                                    ${regAndPlace ? `<span class="text-[11px] font-bold text-slate-400">• ${escapeHtml(regAndPlace)}</span>` : ''}
+                                </div>
                                 <span class="font-bold text-emerald-700">Official Result Report</span>
                             </div>
                         </div>
