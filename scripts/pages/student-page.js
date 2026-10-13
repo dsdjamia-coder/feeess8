@@ -1516,40 +1516,25 @@ window.AppSession?.guardStudentPage?.();
             return 'male';
         };
 
-        const BOY_AVATAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <circle cx="60" cy="60" r="58" fill="#e0e7ff"/>
-  <path d="M 36 44 C 36 22, 84 22, 84 44 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-  <rect x="34" y="42" width="52" height="6" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-  <circle cx="60" cy="54" r="22" fill="#fed7aa"/>
-  <path d="M 38 46 Q 37 54 41 57" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M 82 46 Q 83 54 79 57" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="52" cy="53" r="2.8" fill="#1e293b"/>
-  <circle cx="68" cy="53" r="2.8" fill="#1e293b"/>
-  <path d="M 48 47 Q 52 45 56 47" stroke="#1e293b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <path d="M 64 47 Q 68 45 72 47" stroke="#1e293b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <path d="M 54 62 Q 60 67 66 62" stroke="#ea580c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-  <path d="M 28 108 C 28 78, 92 78, 92 108 Z" fill="#2563eb"/>
-  <path d="M 52 78 L 60 88 L 68 78 Z" fill="#ffffff"/>
+        const getStudentInitial = (st = {}) => {
+            const raw = String(st?.name || st?.profile?.name || '').trim();
+            return (raw.charAt(0) || 'S').toUpperCase();
+        };
+
+        const getStudentAvatarDataUrl = (st = {}) => {
+            const initial = getStudentInitial(st);
+            const initialSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="initGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="50%" stop-color="#172554"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="57" fill="url(#initGrad)" stroke="#f59e0b" stroke-width="3"/>
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="54" font-weight="900" fill="#ffffff">${initial}</text>
 </svg>`;
-
-        const GIRL_AVATAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <circle cx="60" cy="60" r="58" fill="#fce7f3"/>
-  <path d="M 28 66 C 28 26, 92 26, 92 66 C 92 88, 80 108, 60 108 C 40 108, 28 88, 28 66 Z" fill="#0d9488"/>
-  <ellipse cx="60" cy="56" rx="18" ry="21" fill="#fed7aa"/>
-  <path d="M 43 45 C 47 41, 73 41, 77 45 C 70 41, 50 41, 43 45 Z" fill="#ffffff"/>
-  <circle cx="53" cy="55" r="2.8" fill="#1e293b"/>
-  <circle cx="67" cy="55" r="2.8" fill="#1e293b"/>
-  <path d="M 49 51 Q 53 49 56 52" stroke="#0f172a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <path d="M 64 52 Q 67 49 71 51" stroke="#0f172a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <path d="M 55 64 Q 60 68 65 64" stroke="#db2777" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-  <path d="M 26 108 C 34 82, 86 82, 94 108 Z" fill="#0f766e"/>
-</svg>`;
-
-        const BOY_AVATAR_DATA_URL = `data:image/svg+xml;utf8,${encodeURIComponent(BOY_AVATAR_SVG)}`;
-        const GIRL_AVATAR_DATA_URL = `data:image/svg+xml;utf8,${encodeURIComponent(GIRL_AVATAR_SVG)}`;
-
-        const getStudentAvatarDataUrl = (st) => {
-            return getStudentGender(st) === 'female' ? GIRL_AVATAR_DATA_URL : BOY_AVATAR_DATA_URL;
+            return `data:image/svg+xml;utf8,${encodeURIComponent(initialSvg)}`;
         };
 
         const loadPosterImage = (src) => new Promise((resolve) => {
@@ -1872,99 +1857,122 @@ window.AppSession?.guardStudentPage?.();
             ctx.restore();
         };
 
-        const drawStudentAvatarDirect = (ctx, x, y, w, h, gender = 'male') => {
+        const drawAuthenticTrophy = (ctx, cx, cy, size = 44) => {
+            ctx.save();
+            const half = size / 2;
+            const goldGrad = ctx.createLinearGradient(cx - half, cy - half, cx + half, cy + half);
+            goldGrad.addColorStop(0, '#f59e0b');
+            goldGrad.addColorStop(0.5, '#d97706');
+            goldGrad.addColorStop(1, '#b45309');
+
+            // 1. Cup Chalice Body
+            ctx.beginPath();
+            const topW = size * 0.58;
+            const cupTopY = cy - (size * 0.42);
+            const cupH = size * 0.44;
+            ctx.moveTo(cx - (topW / 2), cupTopY);
+            ctx.lineTo(cx + (topW / 2), cupTopY);
+            ctx.bezierCurveTo(
+                cx + (topW / 2), cupTopY + (cupH * 0.6),
+                cx + (size * 0.16), cupTopY + cupH,
+                cx, cupTopY + cupH
+            );
+            ctx.bezierCurveTo(
+                cx - (size * 0.16), cupTopY + cupH,
+                cx - (topW / 2), cupTopY + (cupH * 0.6),
+                cx - (topW / 2), cupTopY
+            );
+            ctx.fillStyle = goldGrad;
+            ctx.fill();
+
+            // Rim highlight
+            ctx.beginPath();
+            ctx.ellipse(cx, cupTopY, topW / 2, size * 0.06, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fill();
+
+            // 2. Twin Ear Handles (Left & Right)
+            ctx.lineWidth = Math.max(2.5, size * 0.08);
+            ctx.strokeStyle = '#d97706';
+            ctx.lineCap = 'round';
+
+            // Left Handle
+            ctx.beginPath();
+            ctx.moveTo(cx - (topW * 0.46), cupTopY + (size * 0.06));
+            ctx.bezierCurveTo(
+                cx - (size * 0.48), cupTopY + (size * 0.06),
+                cx - (size * 0.48), cupTopY + (size * 0.32),
+                cx - (size * 0.16), cupTopY + (size * 0.35)
+            );
+            ctx.stroke();
+
+            // Right Handle
+            ctx.beginPath();
+            ctx.moveTo(cx + (topW * 0.46), cupTopY + (size * 0.06));
+            ctx.bezierCurveTo(
+                cx + (size * 0.48), cupTopY + (size * 0.06),
+                cx + (size * 0.48), cupTopY + (size * 0.32),
+                cx + (size * 0.16), cupTopY + (size * 0.35)
+            );
+            ctx.stroke();
+
+            // 3. Slender Stem
+            const stemY = cupTopY + cupH;
+            const stemH = size * 0.16;
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(cx - (size * 0.06), stemY, size * 0.12, stemH);
+
+            // Stem ring
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.ellipse(cx, stemY + (stemH * 0.5), size * 0.1, size * 0.04, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4. Two-Tier Pedestal Base
+            const base1Y = stemY + stemH;
+            const base1W = size * 0.42;
+            const base1H = size * 0.1;
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(cx - (base1W / 2), base1Y, base1W, base1H);
+
+            const base2Y = base1Y + base1H;
+            const base2W = size * 0.62;
+            const base2H = size * 0.12;
+            ctx.fillStyle = '#92400e';
+            ctx.fillRect(cx - (base2W / 2), base2Y, base2W, base2H);
+
+            // Subtle highlight on cup
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx - (size * 0.1), cupTopY + (size * 0.14), size * 0.04, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        };
+
+        const drawStudentInitialDirect = (ctx, x, y, w, h, initial = 'S') => {
             ctx.save();
             const cx = x + (w / 2);
             const cy = y + (h / 2);
             const r = Math.min(w, h) / 2;
 
-            // Background circle
+            const grad = ctx.createLinearGradient(x, y, x + w, y + h);
+            grad.addColorStop(0, '#1e3a8a');
+            grad.addColorStop(1, '#0f172a');
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.fillStyle = gender === 'female' ? '#fce7f3' : '#e0e7ff';
+            ctx.fillStyle = grad;
             ctx.fill();
 
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.clip();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.stroke();
 
-            if (gender === 'female') {
-                // Girl with Hijab
-                // Green hijab cloak
-                ctx.beginPath();
-                ctx.arc(cx, cy + (r * 0.2), r * 0.85, 0, Math.PI * 2);
-                ctx.fillStyle = '#0f766e';
-                ctx.fill();
-
-                // Face oval
-                ctx.beginPath();
-                ctx.ellipse(cx, cy - (r * 0.05), r * 0.42, r * 0.48, 0, 0, Math.PI * 2);
-                ctx.fillStyle = '#fed7aa';
-                ctx.fill();
-
-                // Hijab inner drape frame
-                ctx.beginPath();
-                ctx.ellipse(cx, cy - (r * 0.15), r * 0.44, r * 0.32, 0, Math.PI, 0);
-                ctx.fillStyle = '#ffffff';
-                ctx.fill();
-
-                // Eyes & Smile
-                ctx.fillStyle = '#0f172a';
-                ctx.beginPath();
-                ctx.arc(cx - (r * 0.16), cy - (r * 0.05), r * 0.05, 0, Math.PI * 2);
-                ctx.arc(cx + (r * 0.16), cy - (r * 0.05), r * 0.05, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = '#db2777';
-                ctx.lineWidth = 2.5;
-                ctx.beginPath();
-                ctx.arc(cx, cy + (r * 0.14), r * 0.12, 0.2, Math.PI - 0.2);
-                ctx.stroke();
-            } else {
-                // Boy with White Cap / Kufi
-                // Blue body
-                ctx.beginPath();
-                ctx.ellipse(cx, cy + (r * 0.7), r * 0.7, r * 0.45, 0, 0, Math.PI * 2);
-                ctx.fillStyle = '#2563eb';
-                ctx.fill();
-
-                // White collar
-                ctx.beginPath();
-                ctx.moveTo(cx - (r * 0.18), cy + (r * 0.4));
-                ctx.lineTo(cx, cy + (r * 0.6));
-                ctx.lineTo(cx + (r * 0.18), cy + (r * 0.4));
-                ctx.fillStyle = '#ffffff';
-                ctx.fill();
-
-                // Face circle
-                ctx.beginPath();
-                ctx.arc(cx, cy - (r * 0.05), r * 0.44, 0, Math.PI * 2);
-                ctx.fillStyle = '#fed7aa';
-                ctx.fill();
-
-                // Islamic White Cap
-                ctx.beginPath();
-                ctx.arc(cx, cy - (r * 0.22), r * 0.46, Math.PI, 0);
-                ctx.fillStyle = '#ffffff';
-                ctx.fill();
-                ctx.strokeStyle = '#cbd5e1';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Eyes & Smile
-                ctx.fillStyle = '#0f172a';
-                ctx.beginPath();
-                ctx.arc(cx - (r * 0.16), cy - (r * 0.05), r * 0.05, 0, Math.PI * 2);
-                ctx.arc(cx + (r * 0.16), cy - (r * 0.05), r * 0.05, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = '#ea580c';
-                ctx.lineWidth = 2.5;
-                ctx.beginPath();
-                ctx.arc(cx, cy + (r * 0.12), r * 0.14, 0.2, Math.PI - 0.2);
-                ctx.stroke();
-            }
-
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${Math.round(r * 0.95)}px "Plus Jakarta Sans", Arial, sans-serif`;
+            ctx.fillText(String(initial || 'S').toUpperCase(), cx, cy);
             ctx.restore();
         };
 
@@ -2127,7 +2135,7 @@ window.AppSession?.guardStudentPage?.();
                     const sy = (ph - minDim) / 2;
                     ctx.drawImage(profileImg, sx, sy, minDim, minDim, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize);
                 } else {
-                    drawStudentAvatarDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, studentGender);
+                    drawStudentInitialDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, studentInitial);
                 }
                 ctx.restore();
 
@@ -2151,27 +2159,40 @@ window.AppSession?.guardStudentPage?.();
                 ctx.fillText(secondWord, headerTextLeft + 6, 155);
                 ctx.restore();
 
-                // Class Badge Pill
+                // Prominent Class Badge: Big number highlighted with "CLASS" underneath
+                const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
+                const classBadgeX = headerTextLeft;
                 const classBadgeY = 175;
-                const classBadgeW = 230;
-                const classBadgeH = 42;
-                drawRoundedRect(ctx, headerTextLeft, classBadgeY, classBadgeW, classBadgeH, 21, '#1e3a8a', '#172554', 1.5);
+                const classBadgeW = 105;
+                const classBadgeH = 68;
+                const badgeGrad = ctx.createLinearGradient(classBadgeX, classBadgeY, classBadgeX, classBadgeY + classBadgeH);
+                badgeGrad.addColorStop(0, '#172554');
+                badgeGrad.addColorStop(1, '#0f172a');
+                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 16, badgeGrad, '#f59e0b', 2);
+
+                // Big Class Number
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#ffffff';
-                ctx.font = '900 20px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(`CLASS - ${String(classLabel).toUpperCase()}`, headerTextLeft + (classBadgeW / 2), classBadgeY + 28);
+                ctx.font = '900 36px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(cleanClassNo, classBadgeX + (classBadgeW / 2), classBadgeY + 38);
 
-                // Student Name under Class Badge
+                // "CLASS" in gold underneath
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '900 12px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText('CLASS', classBadgeX + (classBadgeW / 2), classBadgeY + 58);
+
+                // Student Name beside the Class Badge
+                const nameLeft = headerTextLeft + classBadgeW + 20;
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#0f172a';
-                ctx.font = '900 26px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), headerTextLeft, 252);
+                ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(studentName.toUpperCase(), nameLeft, classBadgeY + 34);
 
                 // Father Name (S/o or D/o)
                 if (fatherName) {
                     ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
                     ctx.fillStyle = '#475569';
-                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, headerTextLeft, 280);
+                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, nameLeft, classBadgeY + 62);
                 }
             } else {
                 // No Photo: Centered Elegant Full-Width Header (No blank boxes or avatars)
@@ -2186,35 +2207,46 @@ window.AppSession?.guardStudentPage?.();
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#172554';
                 ctx.font = '900 58px "Plus Jakarta Sans", "Georgia", sans-serif';
-                ctx.fillText(firstWord, titleStartX, 76);
+                ctx.fillText(firstWord, titleStartX, 72);
 
                 ctx.fillStyle = '#d97706';
                 ctx.font = '900 64px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
-                ctx.fillText(secondWord, titleStartX + w1 + 16, 76);
+                ctx.fillText(secondWord, titleStartX + w1 + 16, 72);
                 ctx.restore();
 
-                // Class Badge Pill centered
-                const classBadgeW = 230;
-                const classBadgeH = 40;
+                // Prominent Centered Class Badge: Big number with CLASS underneath
+                const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
+                const classBadgeW = 120;
+                const classBadgeH = 68;
                 const classBadgeX = (designWidth - classBadgeW) / 2;
-                const classBadgeY = 98;
-                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 20, '#1e3a8a', '#172554', 1.5);
+                const classBadgeY = 92;
+                const badgeGrad = ctx.createLinearGradient(classBadgeX, classBadgeY, classBadgeX, classBadgeY + classBadgeH);
+                badgeGrad.addColorStop(0, '#172554');
+                badgeGrad.addColorStop(1, '#0f172a');
+                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 16, badgeGrad, '#f59e0b', 2);
+
+                // Big Class Number
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#ffffff';
-                ctx.font = '900 19px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(`CLASS - ${String(classLabel).toUpperCase()}`, designWidth / 2, classBadgeY + 27);
+                ctx.font = '900 36px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(cleanClassNo, classBadgeX + (classBadgeW / 2), classBadgeY + 38);
+
+                // "CLASS" in gold underneath
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '900 12px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText('CLASS', classBadgeX + (classBadgeW / 2), classBadgeY + 58);
 
                 // Student Name centered
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 172);
+                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 192);
 
                 // Father Name (S/o or D/o) centered
                 if (fatherName) {
                     ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
                     ctx.fillStyle = '#475569';
-                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, designWidth / 2, 202);
+                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, designWidth / 2, 222);
                 }
             }
 
@@ -2331,21 +2363,12 @@ window.AppSession?.guardStudentPage?.();
             // Card 2: Rank (Light Warm Yellow)
             const c2X = tableX + metricCardW + 16;
             drawRoundedRect(ctx, c2X, metricY, metricCardW, metricCardH, 18, '#fef9c3', '#fef08a', 1.5);
-            // Drawn Trophy Icon
-            ctx.fillStyle = '#d97706';
-            ctx.beginPath();
-            ctx.moveTo(c2X + 28, metricY + 48);
-            ctx.lineTo(c2X + 56, metricY + 48);
-            ctx.lineTo(c2X + 52, metricY + 70);
-            ctx.quadraticCurveTo(c2X + 42, metricY + 80, c2X + 32, metricY + 70);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillRect(c2X + 39, metricY + 78, 6, 10);
-            ctx.fillRect(c2X + 32, metricY + 88, 20, 5);
+            // Drawn Authentic Trophy Icon
+            drawAuthenticTrophy(ctx, c2X + 44, metricY + 68, 44);
 
             ctx.fillStyle = '#475569';
             ctx.font = '700 16px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillText('Rank', c2X + 74, metricY + 52);
+            ctx.fillText('Rank', c2X + 78, metricY + 52);
             ctx.fillStyle = '#0f172a';
             ctx.font = '900 32px "Plus Jakarta Sans", Arial, sans-serif';
             ctx.fillText(currentRank > 0 ? String(currentRank) : '1', c2X + 74, metricY + 86);
@@ -2661,9 +2684,10 @@ window.AppSession?.guardStudentPage?.();
                     const studentGender = getStudentGender(studentProfile);
                     const relPrefix = studentGender === 'female' ? 'D/o' : 'S/o';
                     const fatherVal = String(studentProfile?.father || studentProfile?.profile?.father || '').trim();
+                    const studentInitial = getStudentInitial(studentProfile);
+                    const hasStudentPhoto = Boolean(studentProfile?.photo);
+                    const cleanClassNo = String(result.classLabel || classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(result.classLabel || classLabel || '');
 
-                    // Photo or gender-specific avatar (NEVER initials!)
-                    const studentAvatar = studentProfile?.photo || getStudentAvatarDataUrl(studentProfile);
                     const examTitle = stringifyResultLabel(getStudentResultExamLabel(result), 'Annual Exam');
                     const isPass = result.totals?.passStatus === 'PASS';
 
@@ -2691,48 +2715,68 @@ window.AppSession?.guardStudentPage?.();
                             <div class="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 rounded-br-full -z-0 opacity-90"></div>
                             <div class="absolute top-0 left-0 w-36 h-36 border-b-4 border-amber-400 rounded-br-full pointer-events-none"></div>
 
-                            <!-- Header: Student Photo Frame + Title -->
+                            <!-- Top Action Bar (Buttons at top) -->
+                            <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-amber-200/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-950 text-amber-400 rounded-xl text-xs font-black tracking-wider uppercase border border-amber-400/40 shadow-xs">
+                                        <i class="fas fa-award"></i>
+                                        <span>Official Result</span>
+                                    </span>
+                                    <span class="text-xs font-bold text-slate-500">${escapeHtml(activeYear)}</span>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-auto">
+                                    <button class="poster-download-btn flex-1 sm:flex-none px-3.5 py-2 bg-blue-900 hover:bg-blue-950 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Download Colourful Poster">
+                                        <i class="fas fa-download text-amber-400"></i>
+                                        <span>Poster</span>
+                                    </button>
+                                    <button class="poster-share-btn flex-1 sm:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Share Result with Alhamdulillah">
+                                        <i class="fas fa-share-alt"></i>
+                                        <span>Share</span>
+                                    </button>
+                                    <button class="poster-wa-btn flex-1 sm:flex-none px-3.5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Share on WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <span>WhatsApp</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Header: Student Photo / Initial Badge + Title & Prominent Class Badge -->
                             <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 mb-6">
-                                <!-- Photo Frame with stitched dashed line and Mortarboard -->
+                                <!-- Photo Frame or Initial Letter Badge -->
                                 <div class="relative shrink-0">
-                                    <div class="w-32 h-40 sm:w-36 sm:h-44 bg-white rounded-2xl p-1.5 shadow-md border-2 border-dashed border-slate-300 flex items-center justify-center">
-                                        <img src="${studentAvatar}" class="w-full h-full rounded-xl object-cover bg-slate-100" alt="Student">
-                                    </div>
-                                    <!-- Mortarboard Badge Icon on Bottom-Left -->
-                                    <div class="absolute -bottom-3 -left-3 bg-slate-900 text-amber-400 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border-2 border-amber-400 text-lg">
+                                    ${hasStudentPhoto ? `
+                                        <div class="w-32 h-40 sm:w-36 sm:h-44 bg-white rounded-2xl p-1.5 shadow-md border-2 border-dashed border-slate-300 flex items-center justify-center">
+                                            <img src="${escapeHtml(studentProfile.photo)}" class="w-full h-full rounded-xl object-cover bg-slate-100" alt="Student">
+                                        </div>
+                                    ` : `
+                                        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-white flex items-center justify-center font-black text-4xl sm:text-5xl shadow-md border-2 border-amber-400">
+                                            ${escapeHtml(studentInitial)}
+                                        </div>
+                                    `}
+                                    <!-- Mortarboard Badge Icon -->
+                                    <div class="absolute -bottom-2.5 -left-2.5 bg-slate-900 text-amber-400 w-9 h-9 rounded-xl flex items-center justify-center shadow-lg border-2 border-amber-400 text-base">
                                         <i class="fas fa-graduation-cap"></i>
                                     </div>
                                 </div>
 
-                                <!-- Title, Class Banner, and Student Details -->
+                                <!-- Title, Prominent Class Badge, and Student Details -->
                                 <div class="flex-grow text-center sm:text-left min-w-0">
                                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                         <h3 class="text-2xl sm:text-3xl font-black tracking-tight text-blue-950 font-serif">${escapeHtml(examTitle.split(' ')[0] || 'Annual')}</h3>
                                         <span class="text-2xl sm:text-3xl font-black text-amber-500 font-serif">${escapeHtml(examTitle.split(' ').slice(1).join(' ') || 'Result')}</span>
                                     </div>
-                                    <div class="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-900 text-white rounded-full text-xs font-black tracking-wider uppercase shadow-xs">
-                                        <span>CLASS - ${escapeHtml(result.classLabel || classLabel)}</span>
-                                    </div>
-                                    <div class="mt-3">
-                                        <div class="text-base sm:text-lg font-black text-slate-900">${escapeHtml(studentProfile?.name || 'Student')}</div>
-                                        ${fatherVal ? `<div class="text-xs font-bold text-slate-500">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
-                                    </div>
-                                </div>
 
-                                <!-- Action Buttons: Download Poster, Share (Alhamdulillah), WhatsApp -->
-                                <div class="shrink-0 flex flex-wrap sm:flex-col gap-2 w-full sm:w-auto justify-center">
-                                    <button class="poster-download-btn flex-1 sm:flex-none px-4 py-2 bg-blue-900 hover:bg-blue-950 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Download Colourful Poster">
-                                        <i class="fas fa-download text-amber-400"></i>
-                                        <span>Poster</span>
-                                    </button>
-                                    <button class="poster-share-btn flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Share Result with Alhamdulillah">
-                                        <i class="fas fa-share-alt"></i>
-                                        <span>Share</span>
-                                    </button>
-                                    <button class="poster-wa-btn flex-1 sm:flex-none px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-2" data-exam="${escapeHtml(examKey)}" title="Share on WhatsApp">
-                                        <i class="fab fa-whatsapp"></i>
-                                        <span>WhatsApp</span>
-                                    </button>
+                                    <!-- Prominent Class Badge with big number and CLASS underneath -->
+                                    <div class="mt-3 flex items-center justify-center sm:justify-start gap-4">
+                                        <div class="inline-flex flex-col items-center justify-center px-4 py-1.5 bg-gradient-to-b from-blue-900 to-indigo-950 text-white rounded-xl shadow-xs border border-amber-400/50 min-w-[70px]">
+                                            <span class="text-xl sm:text-2xl font-black leading-none text-white">${escapeHtml(cleanClassNo)}</span>
+                                            <span class="text-[9px] font-black tracking-widest text-amber-400 uppercase leading-none mt-1">CLASS</span>
+                                        </div>
+                                        <div class="text-left">
+                                            <div class="text-base sm:text-lg font-black text-slate-900 leading-tight">${escapeHtml(studentProfile?.name || 'Student')}</div>
+                                            ${fatherVal ? `<div class="text-xs font-bold text-slate-500 mt-0.5">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -3197,9 +3241,13 @@ window.AppSession?.guardStudentPage?.();
                 if (avatarEl) avatarEl.innerHTML = `<img src="${userPhoto}" class="w-full h-full object-cover rounded-full" alt="Profile Photo">`;
                 if (viewerImg) viewerImg.src = userPhoto;
             } else {
-                const avatarSrc = getStudentAvatarDataUrl(st);
+                const initial = getStudentInitial(st);
                 if (avatarEl) {
-                    avatarEl.innerHTML = `<img src="${avatarSrc}" class="w-full h-full object-cover rounded-full p-1" alt="Student Avatar">`;
+                    avatarEl.innerHTML = `
+                        <div class="w-full h-full rounded-full bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-white flex items-center justify-center font-black text-4xl sm:text-5xl shadow-inner border-2 border-amber-400">
+                            ${escapeHtml(initial)}
+                        </div>
+                    `;
                 }
             }
 
