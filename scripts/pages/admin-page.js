@@ -1037,11 +1037,11 @@ const toggleSidebarState = () => {
 };
 
 const initSidebarState = () => {
-    const stored = localStorage.getItem('admin_sidebar_collapsed');
-    if (stored !== null) {
-        setSidebarCollapsed(stored === 'true');
+    if (!isDesktop()) {
+        setSidebarCollapsed(true);
     } else {
-        setSidebarCollapsed(!isDesktop());
+        const stored = localStorage.getItem('admin_sidebar_collapsed');
+        setSidebarCollapsed(stored === 'true');
     }
 };
 
@@ -1052,13 +1052,18 @@ const toggleDrawer = (open) => {
 document.getElementById('sidebar-collapse-btn')?.addEventListener('click', () => {
     toggleSidebarState();
 });
+document.getElementById('admin-mobile-menu-btn')?.addEventListener('click', () => {
+    setSidebarCollapsed(false);
+});
 overlay?.addEventListener('click', () => setSidebarCollapsed(true));
 
 initSidebarState();
 window.addEventListener('resize', () => {
-    if (isDesktop() && overlay && !overlay.classList.contains('hidden')) {
-        overlay.classList.add('opacity-0');
-        overlay.classList.add('hidden');
+    if (isDesktop()) {
+        if (overlay && !overlay.classList.contains('hidden')) {
+            overlay.classList.add('opacity-0');
+            overlay.classList.add('hidden');
+        }
     }
 });
 

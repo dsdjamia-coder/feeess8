@@ -278,59 +278,23 @@ body.collection-shell .fee-item-new-green {
     top: 0;
     left: 0;
     bottom: 0;
-    z-index: 40;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Expanded State */
-#admin-app:not(.sidebar-collapsed) #side-drawer {
-    width: 16rem; /* 256px */
-}
-
-/* Collapsed State */
-#admin-app.sidebar-collapsed #side-drawer {
-    width: 4.5rem; /* 72px */
-}
-
-/* Hide text & headings when collapsed */
-#admin-app.sidebar-collapsed #side-drawer .nav-text,
-#admin-app.sidebar-collapsed #side-drawer .drawer-heading,
-#admin-app.sidebar-collapsed #side-drawer .drawer-header-title,
-#admin-app.sidebar-collapsed #side-drawer .sidebar-btn-label {
-    display: none !important;
-}
-
-/* Header in collapsed sidebar */
-#admin-app.sidebar-collapsed #side-drawer > div:first-child {
-    justify-content: center !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-
-/* Center icons when collapsed */
-#admin-app.sidebar-collapsed #side-drawer .drawer-link {
-    justify-content: center !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-#admin-app.sidebar-collapsed #side-drawer .drawer-link i {
-    font-size: 1.15rem;
-    margin: 0 auto;
-}
-#admin-app.sidebar-collapsed #side-drawer .sidebar-footer-btn {
-    justify-content: center !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-
-/* Rotate collapse icon when collapsed */
-#admin-app.sidebar-collapsed #sidebar-toggle-icon {
-    transform: rotate(180deg);
-}
-
+/* DESKTOP (lg: min-width 1024px) */
 @media (min-width: 1024px) {
     #admin-app #drawer-overlay {
         display: none !important;
+    }
+    #admin-app #side-drawer {
+        transform: translateX(0) !important;
+    }
+    #admin-app:not(.sidebar-collapsed) #side-drawer {
+        width: 16rem; /* 256px */
+    }
+    #admin-app.sidebar-collapsed #side-drawer {
+        width: 4.5rem; /* 72px */
     }
     #admin-app:not(.sidebar-collapsed) .admin-main-wrapper,
     #admin-app:not(.sidebar-collapsed) .admin-sticky-header {
@@ -342,17 +306,60 @@ body.collection-shell .fee-item-new-green {
         margin-left: 4.5rem;
         transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Desktop Collapsed styling: hide text and center icons */
+    #admin-app.sidebar-collapsed #side-drawer .nav-text,
+    #admin-app.sidebar-collapsed #side-drawer .drawer-heading,
+    #admin-app.sidebar-collapsed #side-drawer .drawer-header-title,
+    #admin-app.sidebar-collapsed #side-drawer .sidebar-btn-label {
+        display: none !important;
+    }
+    #admin-app.sidebar-collapsed #side-drawer > div:first-child {
+        justify-content: center !important;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    #admin-app.sidebar-collapsed #side-drawer .drawer-link {
+        justify-content: center !important;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    #admin-app.sidebar-collapsed #side-drawer .drawer-link i {
+        font-size: 1.15rem;
+        margin: 0 auto;
+    }
+    #admin-app.sidebar-collapsed #side-drawer .sidebar-footer-btn {
+        justify-content: center !important;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    #admin-app.sidebar-collapsed #sidebar-toggle-icon {
+        transform: rotate(180deg);
+    }
 }
 
+/* MOBILE & TABLET (max-width: 1023px) */
 @media (max-width: 1023px) {
+    /* Main wrapper and header take 100% full screen with 0 margin */
     #admin-app .admin-main-wrapper,
     #admin-app .admin-sticky-header {
-        margin-left: 4.5rem;
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-left: 0 !important;
+        width: 100% !important;
+        transition: none;
     }
+
+    /* Drawer is 16rem wide off-screen when closed/collapsed */
+    #admin-app #side-drawer {
+        width: 16rem !important;
+    }
+
+    #admin-app.sidebar-collapsed #side-drawer {
+        transform: translateX(-100%) !important;
+    }
+
     #admin-app:not(.sidebar-collapsed) #side-drawer {
-        z-index: 50;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+        transform: translateX(0) !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
     }
 }
 
