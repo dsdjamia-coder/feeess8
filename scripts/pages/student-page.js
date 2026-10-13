@@ -1976,10 +1976,13 @@ window.AppSession?.guardStudentPage?.();
             const rawExamLabel = getStudentResultExamLabel(result);
             const examLabel = stringifyResultLabel(rawExamLabel, examLabels[examKey] || examKey || 'Exam');
             const classLabel = result.classLabel || studentProfile?.class || '--';
-            const admNo = studentProfile?.adm || studentProfile?.admNo || studentProfile?.admissionNo || result.admNo || '--';
-            const rollNo = studentProfile?.rollNo || result.rollNo || '--';
             const studentName = studentProfile?.name || 'Student';
             const studentGender = getStudentGender(studentProfile);
+            const fatherName = String(studentProfile?.father || studentProfile?.profile?.father || '').trim();
+            const relPrefix = studentGender === 'female' ? 'D/o' : 'S/o';
+
+            const photoSrc = studentProfile?.photo || result.photo || '';
+            const hasPhoto = Boolean(photoSrc);
 
             const visibilityKey = `${classLabel}__${examKey}`;
             const rawVisibility = resultCenterSettings.resultVisibilityMap?.[visibilityKey];
@@ -1995,15 +1998,15 @@ window.AppSession?.guardStudentPage?.();
             const subjectKeys = Object.keys(result.grades || result.marks || {});
             const subjectCount = Math.max(1, subjectKeys.length);
 
-            // Dynamic heights calculation based on subject count
+            // Dynamic heights calculation based on subject count & photo presence
             const designWidth = 960;
             const rowHeight = 62;
             const tableHeadHeight = 56;
             const tableHeight = tableHeadHeight + (subjectCount * rowHeight);
-            const headerSectionHeight = 410;
+            const headerSectionHeight = hasPhoto ? 310 : 230;
             const metricSectionHeight = 125;
             const statusSectionHeight = 92;
-            const footerSectionHeight = 120;
+            const footerSectionHeight = 115;
             const gapY = 24;
 
             const designHeight = headerSectionHeight + gapY + tableHeight + gapY + metricSectionHeight + gapY + statusSectionHeight + footerSectionHeight;
@@ -2078,105 +2081,142 @@ window.AppSession?.guardStudentPage?.();
             drawOpenBookDoodle(ctx, designWidth - 130, 48, 32);
             drawPaperPlane(ctx, designWidth - 75, 210, 28);
 
-            // 3. Student Photo Card with Stitched Border
-            const photoCardX = 75;
-            const photoCardY = 48;
-            const photoCardW = 260;
-            const photoCardH = 320;
-            const photoRadius = 26;
-
-            // Card background & soft shadow
-            drawRoundedRect(ctx, photoCardX, photoCardY, photoCardW, photoCardH, photoRadius, '#ffffff', '#e2e8f0', 1.5);
-
-            // Stitched dashed inner border
-            ctx.save();
-            ctx.setLineDash([7, 6]);
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 2;
-            drawRoundedRect(ctx, photoCardX + 10, photoCardY + 10, photoCardW - 20, photoCardH - 20, 18, null, '#cbd5e1', 2);
-            ctx.setLineDash([]);
-            ctx.restore();
-
-            // Inner photo container
-            const innerPhotoX = photoCardX + 18;
-            const innerPhotoY = photoCardY + 18;
-            const innerPhotoW = photoCardW - 36;
-            const innerPhotoH = photoCardH - 36;
-            const innerPhotoRadius = 14;
-
-            // Clip inner photo frame
-            ctx.save();
-            ctx.beginPath();
-            if (typeof ctx.roundRect === 'function') {
-                ctx.roundRect(innerPhotoX, innerPhotoY, innerPhotoW, innerPhotoH, innerPhotoRadius);
-            } else {
-                ctx.rect(innerPhotoX, innerPhotoY, innerPhotoW, innerPhotoH);
-            }
-            ctx.clip();
-
-            // Load real photo if exists, else gender avatar (NEVER initials!)
-            const photoSrc = studentProfile?.photo || result.photo || '';
-            let profileImg = null;
-            if (photoSrc) {
-                profileImg = await loadPosterImage(photoSrc);
-            }
-
-            if (profileImg) {
-                ctx.drawImage(profileImg, innerPhotoX, innerPhotoY, innerPhotoW, innerPhotoH);
-            } else {
-                // Direct gender avatar drawn on canvas
-                drawStudentAvatarDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoW, innerPhotoH, studentGender);
-            }
-            ctx.restore();
-
-            // 4. Graduation Cap (Mortarboard) on bottom-left corner of photo
-            drawMortarboardCap(ctx, photoCardX + 15, photoCardY + photoCardH - 12, 1.05);
-
-            // Leaf sprig on right side of photo card
-            drawBotanicalLeaves(ctx, photoCardX + photoCardW + 5, photoCardY + 220, photoCardX + photoCardW + 45, photoCardY + 280, photoCardX + photoCardW + 20, photoCardY + 340, '#15803d');
-
-            // 5. Title & Header beside Student Photo
-            const headerTextLeft = 375;
-
-            // "Annual" in elegant navy calligraphy / script
-            ctx.save();
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#172554';
-            ctx.font = '900 68px "Plus Jakarta Sans", "Georgia", sans-serif';
             const firstWord = /annual/i.test(examLabel) ? 'Annual' : (examLabel.split(' ')[0] || 'Annual');
-            ctx.fillText(firstWord, headerTextLeft, 115);
-
-            // "Result" in warm golden/amber cursive brush script
-            ctx.fillStyle = '#d97706';
-            ctx.font = '900 74px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
             const secondWord = /annual/i.test(examLabel) ? 'Result' : (examLabel.replace(firstWord, '').trim() || 'Result');
-            ctx.fillText(secondWord, headerTextLeft + 6, 185);
-            ctx.restore();
 
-            // Class Badge Pill
-            const classBadgeY = 212;
-            const classBadgeW = 240;
-            const classBadgeH = 46;
-            drawRoundedRect(ctx, headerTextLeft, classBadgeY, classBadgeW, classBadgeH, 23, '#1e3a8a', '#172554', 1.5);
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '900 22px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillText(`CLASS - ${String(classLabel).toUpperCase()}`, headerTextLeft + (classBadgeW / 2), classBadgeY + 30);
+            if (hasPhoto) {
+                // 3. Student Photo Card (1:1 Square) with Stitched Border
+                const photoCardX = 75;
+                const photoCardY = 40;
+                const photoCardSize = 224;
+                const photoRadius = 24;
 
-            // Student Name and Details under Class Badge
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#0f172a';
-            ctx.font = '900 25px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillText(studentName.toUpperCase(), headerTextLeft, 292);
+                // Card background & soft shadow
+                drawRoundedRect(ctx, photoCardX, photoCardY, photoCardSize, photoCardSize, photoRadius, '#ffffff', '#e2e8f0', 1.5);
 
-            ctx.font = '700 16px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillStyle = '#64748b';
-            ctx.fillText(`Adm No: ${admNo}  •  Roll No: ${rollNo}`, headerTextLeft, 322);
+                // Stitched dashed inner border
+                ctx.save();
+                ctx.setLineDash([6, 5]);
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 2;
+                drawRoundedRect(ctx, photoCardX + 10, photoCardY + 10, photoCardSize - 20, photoCardSize - 20, 16, null, '#cbd5e1', 2);
+                ctx.setLineDash([]);
+                ctx.restore();
 
-            const instName = conf.appName || conf.institutionName || 'NOORUL ISLAM MADRASA';
-            ctx.font = '700 14px "Plus Jakarta Sans", Arial, sans-serif';
-            ctx.fillStyle = '#94a3b8';
-            ctx.fillText(instName, headerTextLeft, 348);
+                // Inner photo container (Square 1:1)
+                const innerPhotoX = photoCardX + 16;
+                const innerPhotoY = photoCardY + 16;
+                const innerPhotoSize = photoCardSize - 32;
+                const innerPhotoRadius = 12;
+
+                ctx.save();
+                ctx.beginPath();
+                if (typeof ctx.roundRect === 'function') {
+                    ctx.roundRect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, innerPhotoRadius);
+                } else {
+                    ctx.rect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize);
+                }
+                ctx.clip();
+
+                let profileImg = await loadPosterImage(photoSrc);
+                if (profileImg) {
+                    const pw = profileImg.width || 1;
+                    const ph = profileImg.height || 1;
+                    const minDim = Math.min(pw, ph);
+                    const sx = (pw - minDim) / 2;
+                    const sy = (ph - minDim) / 2;
+                    ctx.drawImage(profileImg, sx, sy, minDim, minDim, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize);
+                } else {
+                    drawStudentAvatarDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, studentGender);
+                }
+                ctx.restore();
+
+                // Graduation Cap (Mortarboard) on bottom-left corner of photo
+                drawMortarboardCap(ctx, photoCardX + 12, photoCardY + photoCardSize - 10, 0.95);
+
+                // Leaf sprig on right side of photo card
+                drawBotanicalLeaves(ctx, photoCardX + photoCardSize + 5, photoCardY + 130, photoCardX + photoCardSize + 35, photoCardY + 170, photoCardX + photoCardSize + 15, photoCardY + 210, '#15803d');
+
+                // Beside Photo: Title, Class, Name & Father
+                const headerTextLeft = photoCardX + photoCardSize + 40;
+
+                ctx.save();
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#172554';
+                ctx.font = '900 60px "Plus Jakarta Sans", "Georgia", sans-serif';
+                ctx.fillText(firstWord, headerTextLeft, 95);
+
+                ctx.fillStyle = '#d97706';
+                ctx.font = '900 66px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
+                ctx.fillText(secondWord, headerTextLeft + 6, 155);
+                ctx.restore();
+
+                // Class Badge Pill
+                const classBadgeY = 175;
+                const classBadgeW = 230;
+                const classBadgeH = 42;
+                drawRoundedRect(ctx, headerTextLeft, classBadgeY, classBadgeW, classBadgeH, 21, '#1e3a8a', '#172554', 1.5);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '900 20px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(`CLASS - ${String(classLabel).toUpperCase()}`, headerTextLeft + (classBadgeW / 2), classBadgeY + 28);
+
+                // Student Name under Class Badge
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '900 26px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(studentName.toUpperCase(), headerTextLeft, 252);
+
+                // Father Name (S/o or D/o)
+                if (fatherName) {
+                    ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
+                    ctx.fillStyle = '#475569';
+                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, headerTextLeft, 280);
+                }
+            } else {
+                // No Photo: Centered Elegant Full-Width Header (No blank boxes or avatars)
+                ctx.save();
+                ctx.font = '900 58px "Plus Jakarta Sans", "Georgia", sans-serif';
+                const w1 = ctx.measureText(firstWord).width;
+                ctx.font = '900 64px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
+                const w2 = ctx.measureText(secondWord).width;
+                const totalTitleW = w1 + 16 + w2;
+                const titleStartX = (designWidth - totalTitleW) / 2;
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#172554';
+                ctx.font = '900 58px "Plus Jakarta Sans", "Georgia", sans-serif';
+                ctx.fillText(firstWord, titleStartX, 76);
+
+                ctx.fillStyle = '#d97706';
+                ctx.font = '900 64px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
+                ctx.fillText(secondWord, titleStartX + w1 + 16, 76);
+                ctx.restore();
+
+                // Class Badge Pill centered
+                const classBadgeW = 230;
+                const classBadgeH = 40;
+                const classBadgeX = (designWidth - classBadgeW) / 2;
+                const classBadgeY = 98;
+                drawRoundedRect(ctx, classBadgeX, classBadgeY, classBadgeW, classBadgeH, 20, '#1e3a8a', '#172554', 1.5);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '900 19px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(`CLASS - ${String(classLabel).toUpperCase()}`, designWidth / 2, classBadgeY + 27);
+
+                // Student Name centered
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 172);
+
+                // Father Name (S/o or D/o) centered
+                if (fatherName) {
+                    ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
+                    ctx.fillStyle = '#475569';
+                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, designWidth / 2, 202);
+                }
+            }
 
             // 6. Main Subject Table
             const tableX = 65;
@@ -2353,58 +2393,92 @@ window.AppSession?.guardStudentPage?.();
             ctx.font = '900 44px "Plus Jakarta Sans", Arial, sans-serif';
             ctx.fillText(passStatus, tableX + (tableW * 0.44), statusY + (statusSectionHeight / 2) + 15);
 
-            // 9. Bottom Stack of Books, Botanical Leaves & Waves
-            const bottomY = designHeight - 80;
+            // 9. Bottom Footer with Institution Details (Logo, Name, Reg No, Place)
+            const bottomY = designHeight - 85;
 
-            // Stack of books on right bottom corner
-            drawStackedBooks(ctx, designWidth - 210, bottomY - 35, 130, 80);
-            drawBotanicalLeaves(ctx, designWidth - 240, bottomY - 10, designWidth - 200, bottomY + 30, designWidth - 260, bottomY + 50, '#15803d');
+            // Left bottom botanical leaves accent
+            drawBotanicalLeaves(ctx, 25, bottomY - 15, 75, bottomY + 15, 35, bottomY + 50, '#15803d');
+            // Right bottom botanical leaves accent
+            drawBotanicalLeaves(ctx, designWidth - 75, bottomY - 15, designWidth - 25, bottomY + 15, designWidth - 35, bottomY + 50, '#15803d');
 
-            // Left bottom botanical leaves
-            drawBotanicalLeaves(ctx, 30, bottomY - 20, 80, bottomY + 15, 40, bottomY + 55, '#15803d');
-
-            // Bottom sweeping royal blue & gold wave
+            // Bottom sweeping royal blue & gold ribbon
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(0, designHeight);
-            ctx.lineTo(0, designHeight - 60);
-            ctx.bezierCurveTo(240, designHeight - 80, 520, designHeight - 20, designWidth, designHeight - 50);
+            ctx.lineTo(0, designHeight - 75);
+            ctx.bezierCurveTo(240, designHeight - 95, 520, designHeight - 55, designWidth, designHeight - 75);
             ctx.lineTo(designWidth, designHeight);
             ctx.closePath();
-            ctx.fillStyle = '#1e3a8a';
+            const bottomGrad = ctx.createLinearGradient(0, designHeight - 85, 0, designHeight);
+            bottomGrad.addColorStop(0, '#172554');
+            bottomGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = bottomGrad;
             ctx.fill();
 
             ctx.beginPath();
-            ctx.moveTo(0, designHeight - 60);
-            ctx.bezierCurveTo(240, designHeight - 80, 520, designHeight - 20, designWidth, designHeight - 50);
+            ctx.moveTo(0, designHeight - 75);
+            ctx.bezierCurveTo(240, designHeight - 95, 520, designHeight - 55, designWidth, designHeight - 75);
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 5;
             ctx.stroke();
             ctx.restore();
 
-            // Bottom Centered "Alhamdulillah" text in English
-            ctx.textAlign = 'center';
+            // Load and draw Institution Logo, Name, Reg No, and Place
+            const headerLogoEl = document.getElementById('header-logo');
+            const instLogoSrc = conf.logo || conf.logoUrl || headerLogoEl?.getAttribute('src') || 'assets/images/logo.png';
+            const instLogoImg = await loadPosterImage(instLogoSrc);
+
+            const instName = conf.appName || conf.institutionName || 'NOORUL ISLAM MADRASA';
+            const regNo = conf.regNo || conf.regNumber || conf.registrationNumber || '';
+            const place = conf.place || conf.location || conf.address || '';
+            const regAndPlace = `${regNo ? `Reg No: ${regNo}` : ''}${regNo && place ? '  •  ' : ''}${place || ''}`.trim();
+
+            ctx.save();
+            ctx.font = '900 18px "Plus Jakarta Sans", Arial, sans-serif';
+            const instNameWidth = ctx.measureText(instName.toUpperCase()).width;
+            ctx.font = '700 13px "Plus Jakarta Sans", Arial, sans-serif';
+            const regWidth = regAndPlace ? ctx.measureText(regAndPlace).width : 0;
+            const textWidth = Math.max(instNameWidth, regWidth);
+
+            const logoSize = 44;
+            const logoGap = 16;
+            const totalFooterWidth = (instLogoImg ? (logoSize + logoGap) : 0) + textWidth;
+            const footerStartX = Math.max(30, (designWidth - totalFooterWidth) / 2);
+            const footerCenterY = designHeight - 38;
+
+            if (instLogoImg) {
+                const logoX = footerStartX;
+                const logoY = footerCenterY - (logoSize / 2);
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(logoX + (logoSize / 2), footerCenterY, (logoSize / 2) + 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.clip();
+                ctx.drawImage(instLogoImg, logoX, logoY, logoSize, logoSize);
+                ctx.restore();
+            }
+
+            const textStartX = footerStartX + (instLogoImg ? (logoSize + logoGap) : 0);
+            ctx.textAlign = 'left';
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'italic 700 24px "Plus Jakarta Sans", "Georgia", serif';
-            ctx.fillText('Alhamdulillah', designWidth / 2, designHeight - 22);
+            ctx.font = '900 18px "Plus Jakarta Sans", Arial, sans-serif';
+            ctx.fillText(instName.toUpperCase(), textStartX, regAndPlace ? (footerCenterY - 4) : (footerCenterY + 6));
+
+            if (regAndPlace) {
+                ctx.fillStyle = '#fde68a';
+                ctx.font = '700 13px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillText(regAndPlace, textStartX, footerCenterY + 16);
+            }
+            ctx.restore();
 
             const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
             if (!blob) throw new Error('Failed to generate image blob');
             return blob;
         };
 
-        const buildAlhamdulillahShareText = (result) => {
-            const conf = window.institutionConfig || {};
-            const instName = conf.appName || conf.institutionName || 'Noorul Islam Madrasa';
-            const studentName = studentProfile?.name || 'Student';
-            const classLabel = result.classLabel || studentProfile?.class || '--';
-            const admNo = studentProfile?.adm || studentProfile?.admNo || studentProfile?.admissionNo || '';
-            const examLabel = stringifyResultLabel(getStudentResultExamLabel(result), 'Annual Exam');
-            const totObt = result.totals?.obtained ?? '-';
-            const totMax = result.totals?.maximum ?? '-';
-            const passStatus = result.totals?.passStatus || (result.totals?.status || 'PASS');
-
-            return `Alhamdulillah! 🌟\n${examLabel} - ${studentName}\nClass: ${classLabel}${admNo ? ` | Adm No: ${admNo}` : ''}\nTotal: ${totObt}/${totMax} | Status: ${passStatus}\n${instName}`;
+        const buildAlhamdulillahShareText = (_result) => {
+            return 'Alhamdulillah';
         };
 
         const downloadRankPoster = async (result, cardEl = null) => {
@@ -2443,7 +2517,7 @@ window.AppSession?.guardStudentPage?.();
             // Fallback for desktop or non-sharing devices
             if (navigator.clipboard?.writeText) {
                 await navigator.clipboard.writeText(shareText);
-                alert('Alhamdulillah! Result details copied to clipboard. Poster image downloaded.');
+                alert('Alhamdulillah! Caption copied to clipboard. Poster image downloaded.');
             }
             const anchor = document.createElement('a');
             anchor.href = URL.createObjectURL(blob);
@@ -2584,6 +2658,10 @@ window.AppSession?.guardStudentPage?.();
                         .sort((a, b) => Number(b.totals?.obtained || 0) - Number(a.totals?.obtained || 0));
                     const currentRank = rankRows.findIndex((row) => row.studentId === result.studentId) + 1;
                     
+                    const studentGender = getStudentGender(studentProfile);
+                    const relPrefix = studentGender === 'female' ? 'D/o' : 'S/o';
+                    const fatherVal = String(studentProfile?.father || studentProfile?.profile?.father || '').trim();
+
                     // Photo or gender-specific avatar (NEVER initials!)
                     const studentAvatar = studentProfile?.photo || getStudentAvatarDataUrl(studentProfile);
                     const examTitle = stringifyResultLabel(getStudentResultExamLabel(result), 'Annual Exam');
@@ -2637,7 +2715,7 @@ window.AppSession?.guardStudentPage?.();
                                     </div>
                                     <div class="mt-3">
                                         <div class="text-base sm:text-lg font-black text-slate-900">${escapeHtml(studentProfile?.name || 'Student')}</div>
-                                        <div class="text-xs font-bold text-slate-500">Adm No: ${escapeHtml(studentProfile?.adm || '--')} • Roll No: ${escapeHtml(studentProfile?.rollNo || '--')}</div>
+                                        ${fatherVal ? `<div class="text-xs font-bold text-slate-500">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
                                     </div>
                                 </div>
 
