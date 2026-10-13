@@ -2011,7 +2011,7 @@ window.AppSession?.guardStudentPage?.();
             const rowHeight = 62;
             const tableHeadHeight = 56;
             const tableHeight = tableHeadHeight + (subjectCount * rowHeight);
-            const headerSectionHeight = hasPhoto ? 310 : 230;
+            const headerSectionHeight = fatherName ? 425 : 395;
             const metricSectionHeight = 125;
             const statusSectionHeight = 92;
             const footerSectionHeight = 115;
@@ -2043,10 +2043,10 @@ window.AppSession?.guardStudentPage?.();
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(310, 0);
-            ctx.bezierCurveTo(270, 90, 160, 180, 0, 210);
+            ctx.lineTo(240, 0);
+            ctx.bezierCurveTo(210, 75, 120, 150, 0, 175);
             ctx.closePath();
-            const tlGrad = ctx.createLinearGradient(0, 0, 220, 200);
+            const tlGrad = ctx.createLinearGradient(0, 0, 180, 160);
             tlGrad.addColorStop(0, '#172554');
             tlGrad.addColorStop(0.6, '#1e3a8a');
             tlGrad.addColorStop(1, '#0f172a');
@@ -2055,77 +2055,89 @@ window.AppSession?.guardStudentPage?.();
 
             // Top-Left Gold Ribbon Accent
             ctx.beginPath();
-            ctx.moveTo(310, 0);
-            ctx.bezierCurveTo(270, 90, 160, 180, 0, 210);
+            ctx.moveTo(240, 0);
+            ctx.bezierCurveTo(210, 75, 120, 150, 0, 175);
             ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 6;
+            ctx.lineWidth = 5;
             ctx.stroke();
 
             // Leaf sprigs along top left wave
-            drawBotanicalLeaves(ctx, 35, 140, 90, 220, 50, 310, '#16a34a');
+            drawBotanicalLeaves(ctx, 30, 110, 75, 170, 40, 240, '#16a34a');
             ctx.restore();
 
             // Top-Right Swirl & Doodles
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(designWidth, 0);
-            ctx.lineTo(designWidth - 220, 0);
-            ctx.bezierCurveTo(designWidth - 140, 80, designWidth - 70, 140, designWidth, 160);
+            ctx.lineTo(designWidth - 190, 0);
+            ctx.bezierCurveTo(designWidth - 120, 70, designWidth - 60, 120, designWidth, 140);
             ctx.closePath();
             ctx.fillStyle = '#1e3a8a';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.moveTo(designWidth - 220, 0);
-            ctx.bezierCurveTo(designWidth - 140, 80, designWidth - 70, 140, designWidth, 160);
+            ctx.moveTo(designWidth - 190, 0);
+            ctx.bezierCurveTo(designWidth - 120, 70, designWidth - 60, 120, designWidth, 140);
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 5;
             ctx.stroke();
             ctx.restore();
 
             // Doodles: Stars, Open Book, Paper Plane
-            drawDoodleStar(ctx, designWidth - 95, 60, 5, 16, 7, '#f59e0b');
-            drawDoodleStar(ctx, designWidth - 190, 85, 4, 9, 4, '#fbbf24');
-            drawOpenBookDoodle(ctx, designWidth - 130, 48, 32);
-            drawPaperPlane(ctx, designWidth - 75, 210, 28);
+            drawDoodleStar(ctx, designWidth - 85, 50, 5, 15, 6, '#f59e0b');
+            drawDoodleStar(ctx, designWidth - 160, 75, 4, 8, 4, '#fbbf24');
+            drawOpenBookDoodle(ctx, designWidth - 110, 40, 28);
+            drawPaperPlane(ctx, designWidth - 65, 175, 24);
 
-            const firstWord = /annual/i.test(examLabel) ? 'Annual' : (examLabel.split(' ')[0] || 'Annual');
-            const secondWord = /annual/i.test(examLabel) ? 'Result' : (examLabel.replace(firstWord, '').trim() || 'Result');
+            // 3. Top Heading: RESULT (Large, Regal, Centered)
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = '#172554';
+            ctx.font = '900 52px "Plus Jakarta Sans", "Georgia", sans-serif';
+            ctx.fillText('RESULT', designWidth / 2, 68);
+
+            // 4. Exam Name (Subtitle under RESULT)
+            const examTitleUpper = String(examLabel || 'ANNUAL EXAMINATION').toUpperCase();
+            ctx.fillStyle = '#d97706';
+            ctx.font = '800 20px "Plus Jakarta Sans", Arial, sans-serif';
+            ctx.fillText(examTitleUpper, designWidth / 2, 104);
+            ctx.restore();
+
+            // 5. Profile Photo Card / Initial Badge (Centered)
+            const photoCardSize = 140;
+            const photoCardX = (designWidth - photoCardSize) / 2;
+            const photoCardY = 126;
+            const photoRadius = 22;
+
+            // Card background & subtle shadow
+            drawRoundedRect(ctx, photoCardX, photoCardY, photoCardSize, photoCardSize, photoRadius, '#ffffff', '#e2e8f0', 1.5);
+
+            // Stitched dashed inner ring
+            ctx.save();
+            ctx.setLineDash([5, 4]);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            drawRoundedRect(ctx, photoCardX + 6, photoCardY + 6, photoCardSize - 12, photoCardSize - 12, 16, null, '#cbd5e1', 1.5);
+            ctx.setLineDash([]);
+            ctx.restore();
+
+            // Inner photo container
+            const innerPhotoX = photoCardX + 10;
+            const innerPhotoY = photoCardY + 10;
+            const innerPhotoSize = photoCardSize - 20;
+            const innerPhotoRadius = 14;
+
+            ctx.save();
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, innerPhotoRadius);
+            } else {
+                ctx.rect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize);
+            }
+            ctx.clip();
 
             if (hasPhoto) {
-                // 3. Student Photo Card (1:1 Square) with Stitched Border
-                const photoCardX = 75;
-                const photoCardY = 40;
-                const photoCardSize = 224;
-                const photoRadius = 24;
-
-                // Card background & soft shadow
-                drawRoundedRect(ctx, photoCardX, photoCardY, photoCardSize, photoCardSize, photoRadius, '#ffffff', '#e2e8f0', 1.5);
-
-                // Stitched dashed inner border
-                ctx.save();
-                ctx.setLineDash([6, 5]);
-                ctx.strokeStyle = '#cbd5e1';
-                ctx.lineWidth = 2;
-                drawRoundedRect(ctx, photoCardX + 10, photoCardY + 10, photoCardSize - 20, photoCardSize - 20, 16, null, '#cbd5e1', 2);
-                ctx.setLineDash([]);
-                ctx.restore();
-
-                // Inner photo container (Square 1:1)
-                const innerPhotoX = photoCardX + 16;
-                const innerPhotoY = photoCardY + 16;
-                const innerPhotoSize = photoCardSize - 32;
-                const innerPhotoRadius = 12;
-
-                ctx.save();
-                ctx.beginPath();
-                if (typeof ctx.roundRect === 'function') {
-                    ctx.roundRect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, innerPhotoRadius);
-                } else {
-                    ctx.rect(innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize);
-                }
-                ctx.clip();
-
                 let profileImg = await loadPosterImage(photoSrc);
                 if (profileImg) {
                     const pw = profileImg.width || 1;
@@ -2137,105 +2149,61 @@ window.AppSession?.guardStudentPage?.();
                 } else {
                     drawStudentInitialDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, studentInitial);
                 }
-                ctx.restore();
-
-                // Graduation Cap (Mortarboard) on bottom-left corner of photo
-                drawMortarboardCap(ctx, photoCardX + 12, photoCardY + photoCardSize - 10, 0.95);
-
-                // Leaf sprig on right side of photo card
-                drawBotanicalLeaves(ctx, photoCardX + photoCardSize + 5, photoCardY + 130, photoCardX + photoCardSize + 35, photoCardY + 170, photoCardX + photoCardSize + 15, photoCardY + 210, '#15803d');
-
-                // Beside Photo: Title, Student Name & Father
-                const headerTextLeft = photoCardX + photoCardSize + 35;
-
-                ctx.save();
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#172554';
-                ctx.font = '900 52px "Plus Jakarta Sans", "Georgia", sans-serif';
-                ctx.fillText(firstWord, headerTextLeft, 90);
-
-                ctx.fillStyle = '#d97706';
-                ctx.font = '900 56px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
-                ctx.fillText(secondWord, headerTextLeft + 4, 145);
-                ctx.restore();
-
-                // Opposite side of Photo (Right side of canvas): Large Class, No border or box
-                const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
-                const classRightX = designWidth - 65;
-
-                ctx.save();
-                ctx.textAlign = 'right';
-                // Big Class Number
-                ctx.fillStyle = '#172554';
-                ctx.font = '900 64px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(cleanClassNo, classRightX, 112);
-
-                // "CLASS" text in warm gold underneath
-                ctx.fillStyle = '#d97706';
-                ctx.font = '900 15px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText('CLASS', classRightX, 138);
-                ctx.restore();
-
-                // Student Name under the Title
-                ctx.save();
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#0f172a';
-                ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), headerTextLeft, 190);
-
-                // Father Name (S/o or D/o)
-                if (fatherName) {
-                    ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
-                    ctx.fillStyle = '#475569';
-                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, headerTextLeft, 218);
-                }
-                ctx.restore();
             } else {
-                // No Photo: Centered Elegant Full-Width Header (No blank boxes or avatars)
-                ctx.save();
-                ctx.font = '900 58px "Plus Jakarta Sans", "Georgia", sans-serif';
-                const w1 = ctx.measureText(firstWord).width;
-                ctx.font = '900 64px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
-                const w2 = ctx.measureText(secondWord).width;
-                const totalTitleW = w1 + 16 + w2;
-                const titleStartX = (designWidth - totalTitleW) / 2;
-
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#172554';
-                ctx.font = '900 58px "Plus Jakarta Sans", "Georgia", sans-serif';
-                ctx.fillText(firstWord, titleStartX, 72);
-
-                ctx.fillStyle = '#d97706';
-                ctx.font = '900 64px "Plus Jakarta Sans", "Georgia", cursive, sans-serif';
-                ctx.fillText(secondWord, titleStartX + w1 + 16, 72);
-                ctx.restore();
-
-                // Prominent Centered Class: Big number with CLASS underneath (No border, no box)
-                const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
-                ctx.save();
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#172554';
-                ctx.font = '900 48px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(cleanClassNo, designWidth / 2, 130);
-
-                ctx.fillStyle = '#d97706';
-                ctx.font = '900 15px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText('CLASS', designWidth / 2, 154);
-                ctx.restore();
-
-                // Student Name centered
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#0f172a';
-                ctx.font = '900 28px "Plus Jakarta Sans", Arial, sans-serif';
-                ctx.fillText(studentName.toUpperCase(), designWidth / 2, 195);
-
-                // Father Name (S/o or D/o) centered
-                if (fatherName) {
-                    ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
-                    ctx.fillStyle = '#475569';
-                    ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, designWidth / 2, 222);
-                }
+                drawStudentInitialDirect(ctx, innerPhotoX, innerPhotoY, innerPhotoSize, innerPhotoSize, studentInitial);
             }
+            ctx.restore();
+
+            // Graduation Cap (Mortarboard) on bottom-left corner of photo
+            drawMortarboardCap(ctx, photoCardX + 4, photoCardY + photoCardSize - 8, 0.88);
+
+            // Botanical sprig accent beside photo
+            drawBotanicalLeaves(ctx, photoCardX + photoCardSize + 6, photoCardY + 70, photoCardX + photoCardSize + 30, photoCardY + 100, photoCardX + photoCardSize + 12, photoCardY + 130, '#15803d');
+
+            // 6. Student Name (Centered under photo)
+            const studentNameY = photoCardY + photoCardSize + 36;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '900 30px "Plus Jakarta Sans", Arial, sans-serif';
+            ctx.fillText(studentName.toUpperCase(), designWidth / 2, studentNameY);
+
+            // 7. Parent Name (Centered under student name)
+            let currentHeaderY = studentNameY;
+            if (fatherName) {
+                currentHeaderY += 26;
+                ctx.font = '700 17px "Plus Jakarta Sans", Arial, sans-serif';
+                ctx.fillStyle = '#475569';
+                ctx.fillText(`${relPrefix} ${fatherName.toUpperCase()}`, designWidth / 2, currentHeaderY);
+            }
+
+            // 8. Class Box on the same line (Centered under parent name)
+            currentHeaderY += 26;
+            const cleanClassNo = String(classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(classLabel || '');
+            const classBoxPrefix = 'CLASS : ';
+            ctx.font = '900 17px "Plus Jakarta Sans", Arial, sans-serif';
+            const prefixWidth = ctx.measureText(classBoxPrefix).width;
+            const classNumWidth = ctx.measureText(cleanClassNo).width;
+            const totalClassTextWidth = prefixWidth + classNumWidth;
+
+            const classBoxPadX = 22;
+            const classBoxW = Math.max(160, totalClassTextWidth + (classBoxPadX * 2));
+            const classBoxH = 38;
+            const classBoxX = (designWidth - classBoxW) / 2;
+            const classBoxY = currentHeaderY;
+
+            // Draw crisp rounded box
+            drawRoundedRect(ctx, classBoxX, classBoxY, classBoxW, classBoxH, 12, '#ffffff', '#172554', 2);
+
+            // Draw CLASS : and Number on the same line inside the box
+            ctx.textBaseline = 'middle';
+            const textStartX = (designWidth - totalClassTextWidth) / 2;
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#d97706';
+            ctx.fillText(classBoxPrefix, textStartX, classBoxY + (classBoxH / 2));
+            ctx.fillStyle = '#172554';
+            ctx.fillText(cleanClassNo, textStartX + prefixWidth, classBoxY + (classBoxH / 2));
+            ctx.restore();
 
             // 6. Main Subject Table
             const tableX = 65;
@@ -2684,6 +2652,9 @@ window.AppSession?.guardStudentPage?.();
                     const cleanClassNo = String(result.classLabel || classLabel || '').replace(/class\s*[-:]?\s*/i, '').trim() || String(result.classLabel || classLabel || '');
 
                     const conf = window.institutionConfig || {};
+                    const headerLogoEl = document.getElementById('header-logo');
+                    const instLogoSrc = conf.logo || conf.logoUrl || headerLogoEl?.getAttribute('src') || 'assets/images/logo.png';
+                    const instName = conf.institutionName || conf.appName || document.getElementById('id-school-name')?.textContent?.trim() || 'NOORUL ISLAM HIGHER SECONDARY MADRASA';
                     const rawReg = conf.regNo || conf.regNumber || conf.registrationNumber || document.getElementById('header-regno')?.textContent?.trim() || '';
                     const cleanRegNo = String(rawReg).replace(/^(reg(istration)?\s*(no)?[:.]*\s*)+/gi, '').trim();
                     const place = conf.place || conf.location || conf.address || document.getElementById('header-place')?.textContent?.trim() || '';
@@ -2748,16 +2719,29 @@ window.AppSession?.guardStudentPage?.();
                                 </div>
                             </div>
 
-                            <!-- Header: Student Photo / Initial Badge + Title, Student Name + Prominent Class (Opposite side) -->
-                            <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 mb-6">
-                                <!-- Photo Frame or Initial Letter Badge -->
-                                <div class="relative shrink-0">
+                            <!-- Centered Vertical Hierarchy:
+                                 1. Large RESULT Heading
+                                 2. Exam Name
+                                 3. Profile Photo or Initial Badge
+                                 4. Student Name
+                                 5. Parent Name
+                                 6. Class in a single-line Box
+                            -->
+                            <div class="relative z-10 flex flex-col items-center text-center mb-6">
+                                <!-- 1. Large RESULT Heading -->
+                                <h2 class="text-3xl sm:text-4xl font-black text-blue-950 tracking-wider font-serif uppercase leading-tight">RESULT</h2>
+
+                                <!-- 2. Exam Name -->
+                                <p class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-600 mt-1">${escapeHtml(examTitle)}</p>
+
+                                <!-- 3. Profile Photo or Initial Badge -->
+                                <div class="relative mt-4 w-32 h-32 sm:w-36 sm:h-36 shrink-0">
                                     ${hasStudentPhoto ? `
-                                        <div class="w-32 h-40 sm:w-36 sm:h-44 bg-white rounded-2xl p-1.5 shadow-md border-2 border-dashed border-slate-300 flex items-center justify-center">
+                                        <div class="w-full h-full bg-white rounded-2xl p-1.5 shadow-md border-2 border-dashed border-slate-300 flex items-center justify-center">
                                             <img src="${escapeHtml(studentProfile.photo)}" class="w-full h-full rounded-xl object-cover bg-slate-100" alt="Student">
                                         </div>
                                     ` : `
-                                        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-white flex items-center justify-center font-black text-4xl sm:text-5xl shadow-md border-2 border-amber-400">
+                                        <div class="w-full h-full rounded-2xl bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-white flex items-center justify-center font-black text-4xl sm:text-5xl shadow-md border-2 border-amber-400">
                                             ${escapeHtml(studentInitial)}
                                         </div>
                                     `}
@@ -2767,23 +2751,16 @@ window.AppSession?.guardStudentPage?.();
                                     </div>
                                 </div>
 
-                                <!-- Title and Student Details (Left/Center) -->
-                                <div class="flex-grow text-center sm:text-left min-w-0">
-                                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                                        <h3 class="text-2xl sm:text-3xl font-black tracking-tight text-blue-950 font-serif">${escapeHtml(examTitle.split(' ')[0] || 'Annual')}</h3>
-                                        <span class="text-2xl sm:text-3xl font-black text-amber-500 font-serif">${escapeHtml(examTitle.split(' ').slice(1).join(' ') || 'Result')}</span>
-                                    </div>
+                                <!-- 4. Student Name -->
+                                <h3 class="mt-3.5 text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">${escapeHtml(studentProfile?.name || 'Student')}</h3>
 
-                                    <div class="mt-2.5 text-center sm:text-left">
-                                        <div class="text-lg sm:text-xl font-black text-slate-900 leading-tight">${escapeHtml(studentProfile?.name || 'Student')}</div>
-                                        ${fatherVal ? `<div class="text-xs sm:text-sm font-bold text-slate-500 mt-0.5">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal)}</div>` : ''}
-                                    </div>
-                                </div>
+                                <!-- 5. Parent Name -->
+                                ${fatherVal ? `<p class="text-xs sm:text-sm font-bold text-slate-500 mt-0.5">${escapeHtml(relPrefix)} ${escapeHtml(fatherVal.toUpperCase())}</p>` : ''}
 
-                                <!-- Opposite side of photo: Big Bold Class (No border, no box) -->
-                                <div class="shrink-0 flex flex-col items-center sm:items-end text-center sm:text-right self-center sm:self-start sm:ml-auto">
-                                    <span class="text-4xl sm:text-5xl font-black text-blue-950 leading-none">${escapeHtml(cleanClassNo)}</span>
-                                    <span class="text-xs font-black tracking-widest text-amber-600 uppercase mt-1">CLASS</span>
+                                <!-- 6. Class Box on the same line -->
+                                <div class="mt-2.5 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl border-2 border-blue-950 bg-white shadow-2xs">
+                                    <span class="text-xs sm:text-sm font-black text-amber-600 uppercase tracking-wider">CLASS :</span>
+                                    <span class="text-xs sm:text-sm font-black text-blue-950 uppercase tracking-wider">${escapeHtml(cleanClassNo)}</span>
                                 </div>
                             </div>
 
@@ -2830,13 +2807,19 @@ window.AppSession?.guardStudentPage?.();
                                 <span class="text-xl sm:text-2xl">${escapeHtml(result.totals?.passStatus || 'PASS')}</span>
                             </div>
 
-                            <!-- Bottom Footer Ribbon Note with Alhamdulillah and Institution Details -->
-                            <div class="mt-4 pt-3 border-t border-amber-200/50 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-                                <div class="flex items-center gap-2">
-                                    <span class="italic font-serif font-bold text-blue-900 text-sm">Alhamdulillah</span>
-                                    ${regAndPlace ? `<span class="text-[11px] font-bold text-slate-400">• ${escapeHtml(regAndPlace)}</span>` : ''}
+                            <!-- Bottom Footer Ribbon with Institution Details, Logo, Reg & Place -->
+                            <div class="mt-5 pt-3.5 border-t border-amber-200/50 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    ${instLogoSrc ? `<img src="${escapeHtml(instLogoSrc)}" class="w-8 h-8 rounded-full object-contain bg-white border border-slate-200 p-0.5 shrink-0" alt="Logo" onerror="this.style.display='none'">` : ''}
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="font-extrabold text-blue-950 text-xs sm:text-sm uppercase tracking-wide truncate">${escapeHtml(instName)}</span>
+                                        ${regAndPlace ? `<span class="text-[11px] font-bold text-slate-500">${escapeHtml(regAndPlace)}</span>` : ''}
+                                    </div>
                                 </div>
-                                <span class="font-bold text-emerald-700">Official Result Report</span>
+                                <div class="flex items-center gap-2 shrink-0 ml-auto">
+                                    <span class="italic font-serif font-bold text-blue-900 text-xs sm:text-sm">Alhamdulillah</span>
+                                    <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/60 text-[11px]">Official Result Report</span>
+                                </div>
                             </div>
                         </div>
                     `;
