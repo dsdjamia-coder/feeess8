@@ -2428,9 +2428,9 @@ window.AppSession?.guardStudentPage?.();
             const instLogoSrc = conf.logo || conf.logoUrl || headerLogoEl?.getAttribute('src') || 'assets/images/logo.png';
             const instLogoImg = await loadPosterImage(instLogoSrc);
 
-            const instName = conf.appName || conf.institutionName || 'NOORUL ISLAM MADRASA';
-            const regNo = conf.regNo || conf.regNumber || conf.registrationNumber || '';
-            const place = conf.place || conf.location || conf.address || '';
+            const instName = conf.institutionName || conf.appName || document.getElementById('id-school-name')?.textContent?.trim() || 'NOORUL ISLAM HIGHER SECONDARY MADRASA';
+            const regNo = conf.regNo || conf.regNumber || conf.registrationNumber || document.getElementById('header-regno')?.textContent?.trim() || '';
+            const place = conf.place || conf.location || conf.address || document.getElementById('header-place')?.textContent?.trim() || '';
             const regAndPlace = `${regNo ? `Reg No: ${regNo}` : ''}${regNo && place ? '  •  ' : ''}${place || ''}`.trim();
 
             ctx.save();
